@@ -1,0 +1,11 @@
+# 用来筛选需要分析的邮件
+[Filters]
+By_Account_Name = <邮箱地址>
+By_Email_Folder = <文件夹名称>
+# 以下条件全都基于正则表达式
+By_Email_Subject = .*
+
+# 邮件部分其余参数
+[Email_Settings]
+# 用来判断邮件会话的第一封内容结尾, 多个条件请用 "|" 来分割
+Email_End_Str = <判断邮箱结尾的字符串>

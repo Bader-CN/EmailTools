@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# PyCharm files
+.idea/*
+
+# My private files
+config.cfg
