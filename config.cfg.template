@@ -9,3 +9,8 @@ By_Email_Subject = .*
 [Email_Settings]
 # 用来判断邮件会话的第一封内容结尾, 多个条件请用 "|" 来分割
 Email_End_Str = <判断邮箱结尾的字符串>
+
+# 通常不建议修改
+[Internal]
+# 总共获取多长的邮件内容来进行情感判断
+Email_Body_Length = 100

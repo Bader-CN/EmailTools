@@ -67,9 +67,19 @@ def chk_emails(src_mail):
     else:
         return src_mail, lang[0]
 
+def pre_emails_to_terms(src_mail, lang):
+    """
+    根据邮件内容以及语言分类来进行预处理, 将邮件中的 Body 部分进行分词化
+    :param src_mail:
+    :param lang:
+    :return:
+    """
+
 if __name__ == "__main__":
     src_mail = get_emails()
     # 判断获取原始邮件内容是否为空, 如果不为空, 则继续处理邮件内容
     if src_mail.Subject.count() != 0:
         src_mail, lang = chk_emails(src_mail)
-        print(lang)
+        email_str = src_mail.Body[0].split('Subject:')[0]
+        email_str = email_str.replace('\r','').replace('\n','')
+        print(email_str[:200])
