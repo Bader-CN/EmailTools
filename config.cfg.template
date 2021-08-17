@@ -14,3 +14,11 @@ Email_End_Str = <判断邮箱结尾的字符串>
 [Internal]
 # 总共获取多长的邮件内容来进行情感判断
 Email_Body_Length = 100
+
+# 调试语言侦测
+Debug_Language = 0
+# 调试分词信息
+Debug_Terms = 0
+
+# 出现下列字符, 则直接判断为繁体中文
+ZH_TW = 當|無|單|獨|啟|謝|驗|證
