@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*-
+import re, jieba, MeCab
 import pandas as pd
 from langdetect import detect
 from configparser import ConfigParser
@@ -10,7 +11,7 @@ cfg.read("./config.cfg", encoding="utf8")
 # 调整 Pandas 显示规则
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
-pd.set_option('display.width', 3000)
+pd.set_option('display.width', 4000)
 
 def get_emails():
     """
@@ -53,10 +54,21 @@ def chk_emails(src_mail):
     contents = body.split('\n')
     for content in contents:
         try:
-            lang.append(detect(content))
+            # 如果字符串里包含指定的字符, 则直接判定为该语言
+            if re.match(cfg.get('Internal', 'ZH_TW'), content):
+                lang.append('zh-tw')
+            # 否则, 则进行自动语言判断
+            else:
+                lang.append(detect(content))
+            # 调试使用
+            if cfg.getboolean('Internal', 'Debug_Language'):
+                print('[Debug] ' + detect(content) + "|||" + content)
         except Exception as e:
             pass
     lang = list(pd.value_counts(lang).index)
+    # 调试部分, 用于显示语言类型
+    if cfg.getboolean('Internal', 'Debug_Language'):
+        print('[Debug] ' + str(lang))
     # 返回原始数据以及对应的语言类型
     if "zh-cn" in lang:
         return src_mail, "zh-cn"
@@ -70,16 +82,66 @@ def chk_emails(src_mail):
 def pre_emails_to_terms(src_mail, lang):
     """
     根据邮件内容以及语言分类来进行预处理, 将邮件中的 Body 部分进行分词化
-    :param src_mail:
-    :param lang:
-    :return:
+    :param src_mail: Pandas.DataFrame
+    :param lang: str
+    :return: Pandas.DataFrame
     """
+    pre_mail = src_mail
+    pre_mail.Body = pre_mail.Body.str.replace('\r|\n','', regex=True)
+    pre_mail.Body = pre_mail.Body.apply(lambda x:x[:cfg.getint('Internal', 'Email_Body_Length')])
+    # 针对中文/英文进行分词
+    # https://zhuanlan.zhihu.com/p/361052986
+    # https://zhuanlan.zhihu.com/p/207057233
+    if lang in ['zh-cn', 'zh-tw', 'en']:
+        # 加载自定义分词
+        jieba.load_userdict(r'./dict/zh_dict.txt')
+        pre_mail.Body = pre_mail.Body.str.replace('\,|\，|\.|\。|_|=|/|-|_|\+|\|', ' ', regex=True)
+        pre_mail.Body = pre_mail.Body.apply(lambda x:jieba.lcut(x))
+        zh_terms = pre_mail.Body[0]
+        # 遍历一次数组, 去掉指定的项 https://www.cnblogs.com/sbj123456789/p/11252718.html
+        n = 0
+        for i in range(len(zh_terms)):
+            if zh_terms[n] in [' ', '（', '）', '(', ')', '·', '<', '>', ':', '@', '-', '_']:
+                zh_terms.pop(n)
+            else:
+                try:
+                    # 尝试将大写转换为小写
+                    zh_terms[n] = zh_terms[n].lower()
+                except:
+                    pass
+                n += 1
+        pre_mail.Body[0] == zh_terms
+
+    # 针对日语进行分词 https://github.com/SamuraiT/mecab-python3
+    # 需要安装2个包, pip install mecab-python3 和 pip install unidic-lite
+    elif lang in ['ja']:
+        mecab_tagger = MeCab.Tagger("-Owakati")
+        pre_mail.Body = pre_mail.Body.str.replace('\,|\，|\.|\。|_|=|/|-|_|\+|\|', ' ', regex=True)
+        pre_mail.Body = pre_mail.Body.apply(lambda x: (mecab_tagger.parse(x)).split())
+        ja_terms = pre_mail.Body[0]
+        n = 0
+        for i in range(len(ja_terms)):
+            if ja_terms[n] in [' ', '（', '）', '(', ')', '·', '<', '>', ':', '@', '-', '_']:
+                ja_terms.pop(n)
+            else:
+                try:
+                    # 尝试将大写转换为小写
+                    ja_terms[n] = ja_terms[n].lower()
+                except:
+                    pass
+                n += 1
+        pre_mail.Body[0] == ja_terms
+
+    # 调试部分, 用于显示分词信息
+    if cfg.getboolean('Internal', 'Debug_Terms'):
+        print('[Debug] ' + str(pre_mail.Body[0]))
+
+    return pre_mail
 
 if __name__ == "__main__":
     src_mail = get_emails()
     # 判断获取原始邮件内容是否为空, 如果不为空, 则继续处理邮件内容
     if src_mail.Subject.count() != 0:
         src_mail, lang = chk_emails(src_mail)
-        email_str = src_mail.Body[0].split('Subject:')[0]
-        email_str = email_str.replace('\r','').replace('\n','')
-        print(email_str[:200])
+        pre_mail = pre_emails_to_terms(src_mail, lang)
+        print(pre_mail.Body[0])
