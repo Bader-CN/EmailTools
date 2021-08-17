@@ -145,3 +145,4 @@ if __name__ == "__main__":
         src_mail, lang = chk_emails(src_mail)
         pre_mail = pre_emails_to_terms(src_mail, lang)
         print(pre_mail.Body[0])
+        print(pre_mail.SenderName)

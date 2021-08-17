@@ -133,3 +133,4 @@ dmypy.json
 
 # My private files
 config.cfg
+data/email_data.csv
