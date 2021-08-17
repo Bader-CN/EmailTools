@@ -4,6 +4,7 @@ import pandas as pd
 from langdetect import detect
 from configparser import ConfigParser
 from win32com.client.gencache import EnsureDispatch as Dispatch
+from mod.to_terms import Cls_To_Terms
 
 cfg = ConfigParser()
 cfg.read("./config.cfg", encoding="utf8")
@@ -143,6 +144,8 @@ if __name__ == "__main__":
     # 判断获取原始邮件内容是否为空, 如果不为空, 则继续处理邮件内容
     if src_mail.Subject.count() != 0:
         src_mail, lang = chk_emails(src_mail)
-        pre_mail = pre_emails_to_terms(src_mail, lang)
-        print(pre_mail.Body[0])
-        print(pre_mail.SenderName)
+        # print(src_mail.Body[0])
+        # pre_mail = pre_emails_to_terms(src_mail, lang)
+        # print(pre_mail.SenderName)
+        terms = Cls_To_Terms(src_mail.Body[0], lang)
+
