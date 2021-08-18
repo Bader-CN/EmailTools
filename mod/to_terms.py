@@ -1,5 +1,9 @@
 # -*- coding:utf-8 -*-
-import jieba, MeCab, string
+import jieba, MeCab, string, re
+from configparser import ConfigParser
+
+cfg = ConfigParser()
+cfg.read("./config.cfg", encoding="utf8")
 
 class Cls_To_Terms():
     """
@@ -8,19 +12,19 @@ class Cls_To_Terms():
     def __init__(self, email_body, lang):
         self.email_body = email_body
         self.lang = lang
-        if lang in ['zh-cn', 'zh-tw', 'en']:
-            self.to_terms_by_jieba()
-        else:
-            self.to_terms_by_mecab()
 
     def to_terms_by_jieba(self):
         """
         利用 jieba 来进行分词
         :return: list
         """
+        # 针对中文/英文进行分词
+        # https://zhuanlan.zhihu.com/p/361052986
+        # https://zhuanlan.zhihu.com/p/207057233
         jieba.load_userdict(r'./dict/zh_dict.txt')
         self.email_body = self.email_body.replace('\r', ' ').replace('\n', ' ')
         # 去掉特殊字符
+        self.email_body = self.email_body.replace('。', ' ').replace('，', ' ').replace('（', ' ').replace('）', ' ')
         for i in string.punctuation:
             self.email_body = self.email_body.replace(i, ' ')
             self.email_body = self.email_body.lower()
@@ -31,15 +35,27 @@ class Cls_To_Terms():
         for i in range(len(self.jieba_terms)):
             if self.jieba_terms[n] in [' ']:
                 self.jieba_terms.pop(n)
+            # 去掉所有的数字和英文
+            elif re.match('[a-z]+|\d+', self.jieba_terms[n]):
+                if self.lang != 'en':
+                    self.jieba_terms.pop(n)
             else:
                 n += 1
+        # 调试部分
+        if cfg.getboolean('Internal', 'Debug_Terms'):
+            print("[Debug] {}".format(str(self.jieba_terms)))
         # 返回最终结果
-        print(self.jieba_terms)
         return self.jieba_terms
 
     def to_terms_by_mecab(self):
+        """
+        针对日语进行分词 https://github.com/SamuraiT/mecab-python3
+        需要安装2个包, pip install mecab-python3 和 pip install unidic-lite
+        :return: list
+        """
         self.email_body = self.email_body.replace('\r', ' ').replace('\n', ' ')
         # 去掉特殊字符
+        self.email_body = self.email_body.replace('。', ' ').replace('，', ' ').replace('（', ' ').replace('）', ' ')
         for i in string.punctuation:
             self.email_body = self.email_body.replace(i, ' ')
             self.email_body = self.email_body.lower()
@@ -51,8 +67,13 @@ class Cls_To_Terms():
         for i in range(len(self.mecab_terms)):
             if self.mecab_terms[n] in [' ']:
                 self.mecab_terms.pop(n)
+            # 去掉所有的数字和英文
+            elif re.match('[a-z]+|\d+', self.mecab_terms[n]):
+                self.mecab_terms.pop(n)
             else:
                 n += 1
+        # 调试部分
+        if cfg.getboolean('Internal', 'Debug_Terms'):
+            print("[Debug] {}".format(str(self.mecab_terms)))
         # 返回最终结果
-        print(self.mecab_terms)
         return self.mecab_terms
