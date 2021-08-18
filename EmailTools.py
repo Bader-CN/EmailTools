@@ -4,7 +4,7 @@ import pandas as pd
 from langdetect import detect
 from configparser import ConfigParser
 from win32com.client.gencache import EnsureDispatch as Dispatch
-from mod.to_terms import Cls_To_Terms
+from mod.to_terms import zh_to_terms, en_to_terms, ja_to_terms
 
 cfg = ConfigParser()
 cfg.read("./config.cfg", encoding="utf8")
@@ -91,13 +91,15 @@ def pre_emails_to_terms(src_mail, lang):
     mail_ends = cfg.get('Email_Settings', 'Email_End_Str').split('|')
     for end in mail_ends:
         mail_content = mail_content.split(end, 1)[0]
-    toterms = Cls_To_Terms(mail_content, lang)
-    if lang in ['zh-cn', 'zh-tw', 'en']:
-        terms = toterms.to_terms_by_jieba()
-        src_mail.Body[0] = terms
+    if lang in ['zh-cn', 'zh-tw']:
+        terms = zh_to_terms(mail_content)
+    elif lang in ['en']:
+        terms = en_to_terms(mail_content)
     else:
-        terms = toterms.to_terms_by_mecab()
-        src_mail.Body[0] = terms
+        terms = ja_to_terms(mail_content)
+    src_mail.Body[0] = terms
+    if cfg.getboolean('Internal', 'Debug_Terms'):
+        print("[Debug] {}".format(str(terms)))
     return src_mail
 
 if __name__ == "__main__":
@@ -106,6 +108,5 @@ if __name__ == "__main__":
     if src_mail.Subject.count() != 0:
         src_mail, lang = chk_emails(src_mail)
         pre_mail = pre_emails_to_terms(src_mail, lang)
-        print(pre_mail)
 
 
