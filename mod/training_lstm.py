@@ -2,7 +2,6 @@
 
 import torch, pickle
 from torch.optim import lr_scheduler
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from mod.to_terms import zh_to_terms, en_to_terms, ja_to_terms
@@ -26,7 +25,7 @@ pd_data_ja = pd_data[pd_data.Language.str.contains('ja')]
 pd_data_ja.reset_index(drop=True, inplace=True)
 pd_data_ja.Body = pd_data_ja.Body.apply(ja_to_terms)
 # 合并所有的数据
-pd_data = pd.concat([pd_data_zh, pd_data_en])
+pd_data = pd.concat([pd_data_zh, pd_data_en, pd_data_ja])
 pd_data.reset_index(drop=True, inplace=True)
 # 生成分词索引文件
 terms_to_index(pd_data)
@@ -38,13 +37,13 @@ terms_data = terms_to_encoding(term_index, pd_data)
 # 处理标签
 text_label = pd_data.Sentiment.values
 # 生成对应的 Dataloader
-train_dl, test_dl = to_dataloader(terms_data, text_label, batch_size=4, test_size=0.4)
+train_dl, test_dl = to_dataloader(terms_data, text_label, batch_size=12, test_size=0.2)
 # 定义 LSTM 模型的相关参数
 model = RNN_LSTM_Net(len(term_index)+1)
 loss_fun = torch.nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 # 定义学习曲率衰减器
-exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.8)
+exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.5)
 # 定义训练函数
 def fit(epoch, model, trainloader, testloader):
     # 初始化变量(训练)
@@ -101,7 +100,7 @@ def fit(epoch, model, trainloader, testloader):
     return epoch_loss, epoch_acc, epoch_test_loss, epoch_test_acc
 
 # 开始训练并获取训练的相关数据
-epochs = 300
+epochs = 150
 acc_by_train = []
 acc_by_test = []
 loss_by_train = []
@@ -115,10 +114,19 @@ for epoch in range(epochs):
 
 # 绘制训练图像
 x = list(range(epochs))
+plt.figure(figsize=(16,9))
+# 绘制第一个图
+plt.subplot(2,1,1)
+plt.title("LSTM Result")
 plt.plot(x, acc_by_train, label="Training", c='r')
 plt.plot(x, acc_by_test, label="Test", c='b')
-plt.plot(x, loss_by_train, label="Loss Training")
-plt.plot(x, loss_by_test, label="Loss Test")
-plt.legend() # 显示图标
-plt.title("LSTM Training Result")
+plt.ylabel('accuracy')
+plt.legend()
+# 绘制第二个图
+plt.subplot(2,1,2)
+plt.title("LSTM Loss")
+plt.plot(x, loss_by_train, label="Loss Training", c='r')
+plt.plot(x, loss_by_test, label="Loss Test", c='b')
+plt.ylabel('loss values')
+plt.legend()
 plt.show()

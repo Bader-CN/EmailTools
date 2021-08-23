@@ -21,8 +21,8 @@ class RNN_LSTM_Net(torch.nn.Module):
         self.fc_numbers = self.cfg.getint('Internal', 'lstm_fc_numbers')
         # 定义神经网络的各个层的特征
         self.ebdg = torch.nn.Embedding(max_terms, self.embeding_dim)
-        self.lstm = torch.nn.LSTM(self.embeding_dim, self.hidden_size, num_layers=self.num_layers, dropout=self.lstm_dropout)
-        self.fc01 = torch.nn.Linear(self.hidden_size, self.fc_numbers)
+        self.lstm = torch.nn.LSTM(self.embeding_dim, self.hidden_size, num_layers=self.num_layers, dropout=self.lstm_dropout, bidirectional=True)
+        self.fc01 = torch.nn.Linear(self.hidden_size*2, self.fc_numbers)
         self.fc02 = torch.nn.Linear(self.fc_numbers, self.fc_numbers)
         self.fc03 = torch.nn.Linear(self.fc_numbers, 2)
         self.drop = torch.nn.Dropout(self.fc_dropout)
@@ -35,7 +35,7 @@ class RNN_LSTM_Net(torch.nn.Module):
         output = output[-1]
         fcdata = torch.relu(self.fc01(output))
         fcdata = self.drop(fcdata)
-        fcdata = torch.relu(self.fc02(fcdata))
+        fcdata = torch.sigmoid(self.fc02(fcdata))
         fcdata = self.drop(fcdata)
         fcdata = self.fc03(fcdata)
         return fcdata
