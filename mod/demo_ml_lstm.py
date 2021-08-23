@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from mod.to_terms import zh_to_terms, en_to_terms, ja_to_terms
 from sklearn.model_selection import train_test_split
+from ml_lstm import RNN_LSTM_Net
 
 # 预处理训练数据
 pd_data = pd.read_csv(r'../data/email_data.csv', encoding='utf8')
@@ -75,31 +76,8 @@ test_dl = torch.utils.data.DataLoader(
 )
 # 创建神经网络模型
 max_terms=(len(term_count)+1)
-embeding_dim = 50
-hidden_size = 400
 
-class RNN_LSTM_Net(torch.nn.Module):
-    def __init__(self, max_terms, embeding_dim, hidden_size):
-        super(RNN_LSTM_Net, self).__init__()
-        self.em = torch.nn.Embedding(max_terms, embeding_dim)  # 200*batch*100
-        self.rnn = torch.nn.LSTM(embeding_dim, hidden_size, num_layers=2, dropout=0.5)  # batch*300
-        self.fc1 = torch.nn.Linear(hidden_size, 1024)
-        self.fc2 = torch.nn.Linear(1024, 1024)
-        self.fc3 = torch.nn.Linear(1024, 2)
-        self.drop = torch.nn.Dropout(0.5)
-
-    def forward(self, inputs):
-        x = self.em(inputs)
-        r_o, _ = self.rnn(x)
-        r_o = r_o[-1]
-        x = torch.relu(self.fc1(r_o))
-        x = self.drop(x)
-        x = torch.sigmoid(self.fc2(x))
-        x = self.drop(x)
-        x = self.fc3(x)
-        return x
-
-model = RNN_LSTM_Net(max_terms, embeding_dim, hidden_size)
+model = RNN_LSTM_Net(max_terms)
 loss_fun = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 

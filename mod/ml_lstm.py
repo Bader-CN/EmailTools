@@ -2,31 +2,40 @@
 
 import torch
 from configparser import ConfigParser
-# 尝试读取配置文件
+
 cfg = ConfigParser()
-try:
-    cfg.read(r"./config.cfg", encoding="utf8")
-except:
-    cfg.read(r"../config.cfg", encoding="utf8")
+cfg.read(r"../config.cfg", encoding="utf8")
 
 # 定义 RNN LSTM 网络模型
 class RNN_LSTM_Net(torch.nn.Module):
-    def __init__(self, max_terms, embeding_dim, hidden_size):
+    def __init__(self, max_terms):
         super(RNN_LSTM_Net, self).__init__()
-        self.em = torch.nn.Embedding(max_terms, embeding_dim)  # 200*batch*100
-        self.rnn = torch.nn.LSTM(embeding_dim, hidden_size, num_layers=2, dropout=0.5)  # batch*300
-        self.fc1 = torch.nn.Linear(hidden_size, 1024)
-        self.fc2 = torch.nn.Linear(1024, 1024)
-        self.fc3 = torch.nn.Linear(1024, 2)
-        self.drop = torch.nn.Dropout(0.5)
-
+        # 读取配置文件中的变量
+        self.cfg = cfg
+        self.embeding_dim = self.cfg.getint('Internal', 'lstm_embeding_dim')
+        self.hidden_size = self.cfg.getint('Internal', 'lstm_hidden_size')
+        self.num_layers = self.cfg.getint('Internal', 'lstm_num_layers')
+        self.lstm_dropout = self.cfg.getfloat('Internal', 'lstm_dropout')
+        self.dropout = self.cfg.getfloat('Internal', 'lstm_dropout')
+        self.fc_dropout = self.cfg.getfloat('Internal', 'lstm_fc_dropout')
+        self.fc_numbers = self.cfg.getint('Internal', 'lstm_fc_numbers')
+        # 定义神经网络的各个层的特征
+        self.ebdg = torch.nn.Embedding(max_terms, self.embeding_dim)
+        self.lstm = torch.nn.LSTM(self.embeding_dim, self.hidden_size, num_layers=self.num_layers, dropout=self.lstm_dropout)
+        self.fc01 = torch.nn.Linear(self.hidden_size, self.fc_numbers)
+        self.fc02 = torch.nn.Linear(self.fc_numbers, self.fc_numbers)
+        self.fc03 = torch.nn.Linear(self.fc_numbers, 2)
+        self.drop = torch.nn.Dropout(self.fc_dropout)
+    # 定义前向运算
     def forward(self, inputs):
-        x = self.em(inputs)
-        r_o, _ = self.rnn(x)
-        r_o = r_o[-1]
-        x = torch.relu(self.fc1(r_o))
-        x = self.drop(x)
-        x = torch.sigmoid(self.fc2(x))
-        x = self.drop(x)
-        x = self.fc3(x)
-        return x
+        # out 是经过 embeding 后的结果
+        out = self.ebdg(inputs)
+        # lstm 会产生2个输出, 一个是 output, 另一个是 h_t, 其中 output[-1] 就是最后的 h_t
+        output, _ = self.lstm(out)
+        output = output[-1]
+        fcdata = torch.relu(self.fc01(output))
+        fcdata = self.drop(fcdata)
+        fcdata = torch.relu(self.fc02(fcdata))
+        fcdata = self.drop(fcdata)
+        fcdata = self.fc03(fcdata)
+        return fcdata

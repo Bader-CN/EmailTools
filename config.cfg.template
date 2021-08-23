@@ -12,8 +12,21 @@ Email_End_Str = <判断邮箱结尾的字符串>
 
 # 通常不建议修改
 [Internal]
-# 总共获取多长的邮件内容来进行情感判断
-Email_Body_Length = 100
+# # 总共获取多长的邮件内容来进行情感判断
+# Email_Body_Length = 100
+
+# LSTM 模型中, 每个分词所对应的维度个数
+lstm_embeding_dim = 100
+# LSTM 模型中, 隐藏层神经元的个数
+lstm_hidden_size = 200
+# LSTM 模型中, LSTM 层的个数
+lstm_num_layers = 2
+# LSTM 模型中, LSTM 层 Dropout 的概率
+lstm_dropout = 0.1
+# LSTM 模型中, Full Connection 层 Dropout 的概率
+lstm_fc_dropout = 0.1
+# LSTM 模型中, Full Connection 层神经元的个数
+lstm_fc_numbers = 1000
 
 # 调试语言侦测
 Debug_Language = 0
