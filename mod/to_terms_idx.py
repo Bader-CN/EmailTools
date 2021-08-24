@@ -22,19 +22,6 @@ def terms_to_index(terms):
     with open('./term_index.pkl', 'wb') as file:
         pickle.dump(term_index, file)
 
-    # # 利用分词索引, 将文本转换为数字编码
-    # # x 为 pandas 中的每一行数据, term 为这一行中的每一个元素, 即分词
-    # # get(term, 0) 意味着如果获取到索引, 则使用索引代替, 否则就是用 0
-    # text_data = pd_data.Body.apply(lambda x: [term_index.get(term, 0) for term in x])
-    #
-    # # 固定文本长度
-    # def fixTerms(text, fix_len=16):
-    #     if len(text) > fix_len:
-    #         text = text[:fix_len]
-    #     else:
-    #         text = text + (fix_len - len(text)) * [0]
-    #     return text
-    #
-    # text_data = text_data.apply(fixTerms)
-    # # 将 Pandas 类型的数据转换为 Numpy 类型的数据
-    # text_data = np.array([line for line in text_data])
+    # 生成文本文件
+    with open('./term_index.txt', 'w', encoding='utf8') as file:
+        file.write(str(term_index))

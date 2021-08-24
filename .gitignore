@@ -135,3 +135,5 @@ dmypy.json
 config.cfg
 data/email_data.csv
 data/email_data.xlsx
+mod/term_index.pkl
+mod/term_index.txt

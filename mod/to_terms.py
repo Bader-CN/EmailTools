@@ -14,7 +14,7 @@ def zh_to_terms(mail_content):
         jieba.load_userdict(r'./dict/zh_dict.txt')
     mail_content = mail_content.replace('\r', ' ').replace('\n', ' ')
     # 去掉特殊字符
-    mail_content = mail_content.replace('。', ' ').replace('，', ' ').replace('（', ' ').replace('）', ' ').replace('', ' ').replace('\t', ' ')
+    mail_content = mail_content.replace('。', ' ').replace('，', ' ').replace('（', ' ').replace('）', ' ').replace('', ' ').replace('\t', ' ').replace('※', ' ').replace('＞', ' ')
     for i in string.punctuation:
         mail_content = mail_content.replace(i, ' ')
         mail_content = mail_content.lower()
@@ -42,7 +42,7 @@ def en_to_terms(mail_content):
     """
     mail_content = mail_content.replace('\r', ' ').replace('\n', ' ')
     # 去掉特殊字符
-    mail_content = mail_content.replace('。', ' ').replace('，', ' ').replace('（', ' ').replace('）', ' ').replace('', ' ').replace('\t', ' ')
+    mail_content = mail_content.replace('。', ' ').replace('，', ' ').replace('（', ' ').replace('）', ' ').replace('', ' ').replace('\t', ' ').replace('※', ' ').replace('＞', ' ')
     for i in string.punctuation:
         mail_content = mail_content.replace(i, ' ')
         mail_content = mail_content.lower()

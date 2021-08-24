@@ -35,7 +35,7 @@ class RNN_LSTM_Net(torch.nn.Module):
         output = output[-1]
         fcdata = torch.relu(self.fc01(output))
         fcdata = self.drop(fcdata)
-        fcdata = torch.sigmoid(self.fc02(fcdata))
+        fcdata = torch.relu(self.fc02(fcdata))
         fcdata = self.drop(fcdata)
         fcdata = self.fc03(fcdata)
         return fcdata
