@@ -4,7 +4,7 @@ import torch
 from configparser import ConfigParser
 
 cfg = ConfigParser()
-cfg.read(r"../config.cfg", encoding="utf8")
+cfg.read(r"./config.cfg", encoding="utf8")
 
 # 定义 RNN LSTM 网络模型
 class RNN_LSTM_Net(torch.nn.Module):

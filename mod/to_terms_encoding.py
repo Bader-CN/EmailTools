@@ -13,7 +13,7 @@ def fixTerms(text, fix_len=cfg.getint('Internal', 'Email_term_Length')):
         text = text + (fix_len - len(text))*[0]
     return text
 
-def terms_to_encoding(term_index, pd_data):
+def terms_to_encoding(term_index, pd_data, cfg=cfg):
     """
     利用 term_index, 将分词进行编码, 并且将固定到统一的长度
     :param term_index: dict, 分词索引

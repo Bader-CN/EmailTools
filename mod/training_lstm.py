@@ -108,12 +108,12 @@ def plt_draw():
 if __name__ == "__main__":
     # 训练参数
     #######################
-    epochs = 500
-    batch_size = 8
+    epochs = 100
+    batch_size = 20
     test_size = 0.2
     learn_rate = 0.002
     lr_down_steps = 100
-    lr_down_gamma = 0.8
+    lr_down_gamma = 0.6
     #######################
     pd_data = get_training_data(r'../data/email_data.csv')
     # 生成分词索引文件
@@ -146,6 +146,9 @@ if __name__ == "__main__":
         acc_by_test.append(epoch_test_acc)
         loss_by_train.append(epoch_loss)
         loss_by_test.append(epoch_test_loss)
+        if (epoch + 1) % 5 == 0:
+            filename = "lstm_{}_{}_epoch{}".format(str(epoch_acc).split('.')[-1][:4], str(epoch_test_acc).split('.')[-1][:4], str(epoch))
+            torch.save(model.state_dict(), "../params/{}".format(filename))
 
     # 绘制图形, 展示结果
     plt_draw()
