@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-import torch, pickle
+import torch, pickle, os
 from torch.optim import lr_scheduler
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,6 +9,8 @@ from ml_lstm import RNN_LSTM_Net
 from mod.to_terms_idx import terms_to_index
 from mod.to_terms_encoding import terms_to_encoding
 from mod.training_data import to_dataloader
+
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 预处理训练数据
 def get_training_data(path):
@@ -115,11 +117,11 @@ if __name__ == "__main__":
     lr_down_steps = 100
     lr_down_gamma = 0.6
     #######################
-    pd_data = get_training_data(r'../data/email_data.csv')
+    pd_data = get_training_data(os.path.join(base_dir, 'data', 'email_data.csv'))
     # 生成分词索引文件
     terms_to_index(pd_data)
     # 读取分词索引文件
-    with open('./term_index.pkl', 'rb') as file:
+    with open(os.path.join(base_dir, 'train', 'term_index.pkl'), 'rb') as file:
         term_index = pickle.load(file)
     # 利用 term_index, 将分词进行编码
     terms_data = terms_to_encoding(term_index, pd_data)
@@ -148,7 +150,7 @@ if __name__ == "__main__":
         loss_by_test.append(epoch_test_loss)
         if (epoch + 1) % 5 == 0:
             filename = "lstm_{}_{}_epoch{}".format(str(epoch_acc).split('.')[-1][:4], str(epoch_test_acc).split('.')[-1][:4], str(epoch))
-            torch.save(model.state_dict(), "../params/{}".format(filename))
+            torch.save(model.state_dict(), os.path.join(base_dir, 'params', filename))
 
     # 绘制图形, 展示结果
     plt_draw()

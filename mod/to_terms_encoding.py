@@ -1,9 +1,11 @@
 # -*- coding:utf-8 -*-
+import os
 import numpy as np
 from configparser import ConfigParser
 
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 cfg = ConfigParser()
-cfg.read(r"../config.cfg", encoding="utf8")
+cfg.read(os.path.join(base_dir, 'config.cfg'), encoding="utf8")
 
 def fixTerms(text, fix_len=cfg.getint('Internal', 'Email_term_Length')):
     # 固定分词长度
@@ -13,7 +15,7 @@ def fixTerms(text, fix_len=cfg.getint('Internal', 'Email_term_Length')):
         text = text + (fix_len - len(text))*[0]
     return text
 
-def terms_to_encoding(term_index, pd_data, cfg=cfg):
+def terms_to_encoding(term_index, pd_data):
     """
     利用 term_index, 将分词进行编码, 并且将固定到统一的长度
     :param term_index: dict, 分词索引

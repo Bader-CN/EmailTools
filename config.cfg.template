@@ -2,6 +2,8 @@
 [Filters]
 By_Account_Name = <邮箱地址>
 By_Email_Folder = <文件夹名称>
+# 类型是 Python List, 如果发件人在此列表中的话, 则忽略此邮件
+By_Email_SenderName_Not_in = ['<mail_address/sender_name>', ]
 # 以下条件全都基于正则表达式
 By_Email_Subject = .*
 
@@ -13,9 +15,9 @@ Email_End_Str = <判断邮箱结尾的字符串>
 # 通常不建议修改
 [Internal]
 # 总共获取多少分词来进行情感分析
-Email_term_Length = 10
+Email_term_Length = 18
 # 统计分词时忽略数量小于指定数值的分词
-min_term_count = 2
+min_term_count = 1
 # LSTM 模型中, 每个分词所对应的维度个数
 lstm_embeding_dim = 100
 # LSTM 模型中, 隐藏层神经元的个数
@@ -33,6 +35,8 @@ lstm_fc_numbers = 1000
 Debug_Language = 0
 # 调试分词信息
 Debug_Terms = 0
+# 调试主程序流程
+Debug_Mail_Info = 0
 
 # 出现下列字符, 则直接判断为繁体中文
 ZH_TW = 當|無|單|獨|啟|謝|驗|證

@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
-import jieba, MeCab, string, re
+import jieba, MeCab, string, re, os
+
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def zh_to_terms(mail_content):
     """
@@ -8,10 +10,7 @@ def zh_to_terms(mail_content):
     https://zhuanlan.zhihu.com/p/207057233
     :return: list
     """
-    try:
-        jieba.load_userdict(r'../dict/zh_dict.txt')
-    except:
-        jieba.load_userdict(r'./dict/zh_dict.txt')
+    jieba.load_userdict(os.path.join(base_dir, 'dict', 'zh_dict.txt'))
     mail_content = mail_content.replace('\r', ' ').replace('\n', ' ')
     # 去掉特殊字符
     mail_content = mail_content.replace('。', ' ').replace('，', ' ').replace('（', ' ').replace('）', ' ').replace('', ' ').replace('\t', ' ').replace('※', ' ').replace('＞', ' ')
