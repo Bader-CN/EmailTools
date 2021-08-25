@@ -118,14 +118,14 @@ if __name__ == "__main__":
         # 分词列表
         terms = pre_mail.Body[0]
         # 对分词进行编码
-        with open(os.path.join(base_dir, 'params', '01_lstm_8235_terms_idx.pkl'), 'rb') as file:
+        with open(os.path.join(base_dir, 'params', 'term_index.pkl'), 'rb') as file:
             term_index = pickle.load(file)
         term_data = torch.tensor(np.array(terms_to_encoding(term_index, pre_mail)), dtype=torch.int64)
         # 调换位置
         term_data = term_data.permute(1, 0)
         # 利用模型来获取预测结果
         model = RNN_LSTM_Net(len(term_index) + 1)
-        model.load_state_dict(torch.load(os.path.join(base_dir, 'params', '01_lstm_8235_model')))
+        model.load_state_dict(torch.load(os.path.join(base_dir, 'params', 'best_lstm_model')))
         # 更改模型为预测模式
         model.eval()
         y_pred_src = model(term_data)

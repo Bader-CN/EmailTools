@@ -110,12 +110,12 @@ def plt_draw():
 if __name__ == "__main__":
     # 训练参数
     #######################
-    epochs = 100
-    batch_size = 20
-    test_size = 0.2
+    epochs = 300
+    batch_size = 10
+    test_size = 0.3
     learn_rate = 0.002
     lr_down_steps = 100
-    lr_down_gamma = 0.6
+    lr_down_gamma = 0.9
     #######################
     pd_data = get_training_data(os.path.join(base_dir, 'data', 'email_data.csv'))
     # 生成分词索引文件
