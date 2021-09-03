@@ -39,6 +39,7 @@ def en_to_terms(mail_content):
     https://zhuanlan.zhihu.com/p/207057233
     :return: list
     """
+    jieba.load_userdict(os.path.join(base_dir, 'dict', 'zh_dict.txt'))
     mail_content = mail_content.replace('\r', ' ').replace('\n', ' ')
     # 去掉特殊字符
     mail_content = mail_content.replace('。', ' ').replace('，', ' ').replace('（', ' ').replace('）', ' ').replace('', ' ').replace('\t', ' ').replace('※', ' ').replace('＞', ' ')
